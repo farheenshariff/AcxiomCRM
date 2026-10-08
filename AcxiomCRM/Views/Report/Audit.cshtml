@@ -1,0 +1,81 @@
+@model List<AcxiomCRM.Models.AuditLog>
+@{
+    ViewData["Title"] = "Admin Audit Summary";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-danger"><i class="bi bi-shield-lock me-2"></i>Admin Audit Summary Report</h2>
+        <p class="text-muted mb-0">System security audit logs, user actions, and modifications</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Report")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Hub</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-light rounded">
+        <form method="get" action="@Url.Action("Audit", "Report")" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">From Date</label>
+                <input type="date" class="form-control" name="fromDate" value="@ViewBag.FromDate" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">To Date</label>
+                <input type="date" class="form-control" name="toDate" value="@ViewBag.ToDate" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small text-muted">Search Logs</label>
+                <input type="text" class="form-control" name="search" value="@ViewBag.Search" placeholder="Search action, entity, details..." />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-danger w-100"><i class="bi bi-search me-1"></i> Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 fw-bold">Recent System Audit Trails</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User ID / Name</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Record ID</th>
+                        <th>Result</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var log in Model)
+                        {
+                            var badgeClass = log.Result == "Success" ? "bg-success" : "bg-danger";
+                            <tr>
+                                <td class="small text-muted">@log.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td class="fw-semibold">@(log.UserId ?? "System")</td>
+                                <td><span class="badge bg-secondary">@log.Action</span></td>
+                                <td>@log.EntityName</td>
+                                <td class="small text-muted">@log.RecordId</td>
+                                <td><span class="badge @badgeClass">@log.Result</span></td>
+                                <td class="small text-truncate" style="max-width: 300px;">@log.Details</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No audit logs matching search criteria.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

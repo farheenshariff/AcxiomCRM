@@ -1,0 +1,92 @@
+@model LeadConvertViewModel
+@{
+    ViewData["Title"] = "Convert Lead - " + Model.LeadName;
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-arrow-right-circle-fill text-success me-2"></i>Convert Lead to Customer & Opportunity</h2>
+        <p class="text-muted small m-0 mt-1">Transform qualified prospect <strong>@Model.LeadName</strong> into an active enterprise account and sales opportunity.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary fw-bold"><i class="bi bi-arrow-left me-1"></i> Cancel</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+            <form asp-action="Convert" asp-route-id="@Model.LeadId" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="LeadId" />
+                <input type="hidden" asp-for="LeadName" />
+                <input type="hidden" asp-for="Email" />
+
+                <div class="alert alert-info border-0 shadow-sm mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                        <div>
+                            <div class="fw-bold">Conversion Summary</div>
+                            <div class="small">Converting lead <strong>@Model.LeadName</strong> (@(Model.CompanyName ?? "Individual Prospect")). Email: <code>@Model.Email</code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check form-switch mb-3 p-3 bg-light rounded-3 border">
+                        <input class="form-check-input ms-0 me-3" type="checkbox" asp-for="CreateCustomer" id="checkCustomer" style="width: 2.5em; height: 1.25em;">
+                        <label class="form-check-label fw-bold text-dark" for="checkCustomer">
+                            Create New Customer Account
+                            <div class="small text-muted fw-normal">Creates an active Customer master record with contact information from this Lead.</div>
+                        </label>
+                    </div>
+
+                    <div class="form-check form-switch p-3 bg-light rounded-3 border">
+                        <input class="form-check-input ms-0 me-3" type="checkbox" asp-for="CreateOpportunity" id="checkOpp" style="width: 2.5em; height: 1.25em;">
+                        <label class="form-check-label fw-bold text-dark" for="checkOpp">
+                            Create Sales Opportunity
+                            <div class="small text-muted fw-normal">Opens a new sales pipeline opportunity record for deal tracking.</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="oppFieldsSection" class="border rounded-3 p-3 bg-light mb-4">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-briefcase text-primary me-2"></i>Opportunity Setup Details</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="OpportunityName" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="OpportunityName" class="form-control" placeholder="Enterprise Upgrade Deal" />
+                            <span asp-validation-for="OpportunityName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="OpportunityAmount" class="form-label fw-semibold small text-secondary"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="OpportunityAmount" class="form-control" />
+                            </div>
+                            <span asp-validation-for="OpportunityAmount" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="OpportunityStage" class="form-label fw-semibold small text-secondary"></label>
+                            <select asp-for="OpportunityStage" class="form-select">
+                                <option value="Qualification">Qualification</option>
+                                <option value="Proposal">Proposal</option>
+                                <option value="Negotiation">Negotiation</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ExpectedCloseDate" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="ExpectedCloseDate" type="date" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-light border fw-semibold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-success fw-bold px-4"><i class="bi bi-check-circle me-1"></i> Complete Conversion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

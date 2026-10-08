@@ -1,0 +1,83 @@
+@model AcxiomCRM.DTOs.PipelineReportDto
+@{
+    ViewData["Title"] = "Sales Pipeline Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-funnel text-primary me-2"></i>Sales Pipeline Report</h2>
+        <p class="text-muted mb-0">Opportunity breakdown across sales stages</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("Index", "Report")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Hub</a>
+        <a href="@Url.Action("ExportCsv", "Report", new { reportType = "pipeline" })" class="btn btn-success"><i class="bi bi-download me-1"></i> Export CSV</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <div class="small text-white-50 text-uppercase fw-semibold">Total Opportunities</div>
+                <div class="h2 fw-bold mb-0">@Model.TotalOpportunities</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-dark text-white">
+            <div class="card-body">
+                <div class="small text-white-50 text-uppercase fw-semibold">Total Pipeline Value</div>
+                <div class="h2 fw-bold mb-0">$@Model.TotalPipelineValue.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body">
+                <div class="small text-white-50 text-uppercase fw-semibold">Weighted Revenue Forecast</div>
+                <div class="h2 fw-bold mb-0">$@Model.WeightedPipelineValue.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 fw-bold">Stage Breakdown</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Stage</th>
+                        <th class="text-center">Count</th>
+                        <th class="text-end">Total Amount ($)</th>
+                        <th class="text-end">Weighted Amount ($)</th>
+                        <th class="text-end">% of Total Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Stages.Any())
+                    {
+                        foreach (var stage in Model.Stages)
+                        {
+                            var pct = Model.TotalPipelineValue > 0 ? (stage.TotalValue / Model.TotalPipelineValue * 100).ToString("F1") : "0";
+                            <tr>
+                                <td class="fw-semibold"><span class="badge bg-primary fs-6">@stage.Stage</span></td>
+                                <td class="text-center fw-bold">@stage.Count</td>
+                                <td class="text-end fw-semibold">$@stage.TotalValue.ToString("N2")</td>
+                                <td class="text-end text-success fw-bold">$@stage.WeightedValue.ToString("N2")</td>
+                                <td class="text-end text-muted">@pct%</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No pipeline data available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

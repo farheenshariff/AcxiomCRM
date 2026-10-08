@@ -1,0 +1,129 @@
+@model LeadDetailsViewModel
+@{
+    ViewData["Title"] = "Lead Details - " + Model.Lead.LeadName;
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-person-badge text-warning me-2"></i>@Model.Lead.LeadName</h2>
+        <span class="badge bg-light text-dark border font-monospace mt-1">@Model.Lead.LeadCode</span>
+        <span class="badge bg-warning text-dark ms-1">@Model.Lead.Status</span>
+        <span class="badge bg-danger ms-1">Priority: @Model.Lead.Priority</span>
+    </div>
+    <div class="d-flex gap-2">
+        @if (Model.Lead.Status != "Converted")
+        {
+            <a asp-action="Convert" asp-route-id="@Model.Lead.LeadId" class="btn btn-success fw-bold"><i class="bi bi-arrow-right-circle me-1"></i> Convert Lead</a>
+            <a asp-action="Edit" asp-route-id="@Model.Lead.LeadId" class="btn btn-primary fw-bold"><i class="bi bi-pencil me-1"></i> Edit Lead</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold"><i class="bi bi-arrow-left me-1"></i> Back to List</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 p-4 bg-white mb-4">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-info-circle me-2 text-warning"></i>Lead Profile</h5>
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4 text-secondary">Company:</dt>
+                <dd class="col-sm-8 fw-semibold">@(Model.Lead.CompanyName ?? "-")</dd>
+
+                <dt class="col-sm-4 text-secondary">Email:</dt>
+                <dd class="col-sm-8"><a href="mailto:@Model.Lead.Email" class="text-decoration-none">@Model.Lead.Email</a></dd>
+
+                <dt class="col-sm-4 text-secondary">Phone:</dt>
+                <dd class="col-sm-8">@(Model.Lead.Phone ?? "-")</dd>
+
+                <dt class="col-sm-4 text-secondary">Source:</dt>
+                <dd class="col-sm-8"><span class="badge bg-light text-dark border">@(Model.Lead.Source ?? "Unspecified")</span></dd>
+
+                <dt class="col-sm-4 text-secondary">Est. Value:</dt>
+                <dd class="col-sm-8 text-success fw-bold">$@Model.Lead.ExpectedValue.ToString("N0")</dd>
+
+                <dt class="col-sm-4 text-secondary">Assigned To:</dt>
+                <dd class="col-sm-8">@(Model.Lead.AssignedTo ?? "Unassigned")</dd>
+
+                <dt class="col-sm-4 text-secondary">Created Date:</dt>
+                <dd class="col-sm-8">@Model.Lead.CreatedDate.ToString("MMM dd, yyyy")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 bg-white">
+            <div class="card-header bg-white border-0 pt-3 px-3">
+                <ul class="nav nav-tabs card-header-tabs" id="leadTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active fw-bold" id="followups-tab" data-bs-toggle="tab" data-bs-target="#followups" type="button" role="tab"><i class="bi bi-calendar-event me-1 text-warning"></i> Follow-Ups (@Model.FollowUps.Count())</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button" role="tab"><i class="bi bi-check2-square me-1 text-info"></i> Activities (@Model.Activities.Count())</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body tab-content p-3" id="leadTabsContent">
+                <div class="tab-pane fade show active" id="followups" role="tabpanel">
+                    @if (Model.FollowUps.Any())
+                    {
+                        <table class="table table-hover align-middle small mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var follow in Model.FollowUps)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@follow.Subject</td>
+                                        <td>@follow.FollowUpDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@follow.FollowUpType</td>
+                                        <td><span class="badge bg-warning text-dark">@follow.Status</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No follow-ups recorded for this lead.</p>
+                    }
+                </div>
+
+                <div class="tab-pane fade" id="activities" role="tabpanel">
+                    @if (Model.Activities.Any())
+                    {
+                        <table class="table table-hover align-middle small mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Assigned To</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var act in Model.Activities)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark border">@act.ActivityType</span></td>
+                                        <td class="fw-bold">@act.Subject</td>
+                                        <td>@act.ActivityDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@act.AssignedTo</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No activities recorded for this lead.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

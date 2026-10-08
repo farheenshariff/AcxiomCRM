@@ -1,0 +1,27 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container my-5 text-center">
+    <div class="card border-0 shadow-lg p-5 mx-auto" style="max-width: 600px;">
+        <div class="text-danger mb-3">
+            <i class="bi bi-exclamation-triangle-fill display-1"></i>
+        </div>
+        <h2 class="fw-bold text-dark mb-3">Something Went Wrong</h2>
+        <p class="text-secondary lead">An unexpected error occurred while processing your request. Our technical team has been notified.</p>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="alert alert-light border my-3 py-2 small text-muted">
+                <strong>Reference ID:</strong> <code>@Model.RequestId</code>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary fw-bold px-4 py-2">
+                <i class="bi bi-house-door me-2"></i> Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>

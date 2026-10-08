@@ -1,0 +1,253 @@
+@model FollowUpListViewModel
+@{
+    ViewData["Title"] = "Follow-Up Tasks";
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-clock-history text-danger me-2"></i>Follow-Up Management</h2>
+        <p class="text-muted small m-0 mt-1">Schedule calls, meetings, reviews, and track task completions.</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-danger fw-bold shadow-sm"><i class="bi bi-calendar-plus me-1"></i> Schedule Follow-Up</a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Tab Navigation Pills -->
+<ul class="nav nav-pills mb-4 bg-white p-2 rounded-3 shadow-sm border">
+    <li class="nav-item">
+        <a class="nav-link fw-bold @(Model.ActiveTab == "Pending" ? "active bg-primary" : "text-dark")" asp-action="Index" asp-route-activeTab="Pending">
+            <i class="bi bi-clock me-1"></i> Pending (<span class="badge bg-light text-dark">@Model.PendingCount</span>)
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-bold @(Model.ActiveTab == "Overdue" ? "active bg-danger" : "text-dark")" asp-action="Index" asp-route-activeTab="Overdue">
+            <i class="bi bi-exclamation-circle me-1"></i> Overdue (<span class="badge bg-light text-dark">@Model.OverdueCount</span>)
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-bold @(Model.ActiveTab == "Upcoming" ? "active bg-warning text-dark" : "text-dark")" asp-action="Index" asp-route-activeTab="Upcoming">
+            <i class="bi bi-calendar-event me-1"></i> Upcoming (7 Days) (<span class="badge bg-light text-dark">@Model.UpcomingCount</span>)
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-bold @(Model.ActiveTab == "Completed" ? "active bg-success" : "text-dark")" asp-action="Index" asp-route-activeTab="Completed">
+            <i class="bi bi-check2-circle me-1"></i> Completed (<span class="badge bg-light text-dark">@Model.CompletedCount</span>)
+        </a>
+    </li>
+</ul>
+
+<!-- Search Bar -->
+<div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <input type="hidden" name="activeTab" value="@Model.ActiveTab" />
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control border-start-0" placeholder="Search by subject, customer, lead..." />
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <select name="assignedUserFilter" class="form-select" asp-items="Model.UsersList" onchange="this.form.submit()">
+                    <option value="">All Representatives</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-dark fw-bold w-100"><i class="bi bi-filter me-1"></i> Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Follow-up Table -->
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-uppercase">
+                <tr>
+                    <th>Scheduled Date</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Account / Lead</th>
+                    <th>Assigned Rep</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.FollowUps.Any())
+                {
+                    @foreach (var follow in Model.FollowUps)
+                    {
+                        var isOverdue = follow.Status == "Planned" && follow.FollowUpDate < DateTime.UtcNow;
+                        <tr class="@(isOverdue ? "table-danger" : "")">
+                            <td>
+                                <div class="fw-bold text-dark"><i class="bi bi-calendar3 me-1"></i>@follow.FollowUpDate.ToString("MMM dd, yyyy")</div>
+                                <span class="small text-muted"><i class="bi bi-clock me-1"></i>@follow.FollowUpDate.ToString("hh:mm tt")</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@follow.Subject</div>
+                                @if (!string.IsNullOrEmpty(follow.Remarks))
+                                {
+                                    <div class="small text-muted text-truncate" style="max-width: 250px;">@follow.Remarks</div>
+                                }
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@(follow.FollowUpType ?? "Call")</span></td>
+                            <td>
+                                @if (follow.Customer != null)
+                                {
+                                    <span class="fw-semibold text-primary"><i class="bi bi-building me-1"></i>@follow.Customer.CustomerName</span>
+                                }
+                                else if (follow.Lead != null)
+                                {
+                                    <span class="fw-semibold text-warning"><i class="bi bi-person me-1"></i>@follow.Lead.LeadName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td class="small text-muted">@(follow.AssignedTo ?? "Unassigned")</td>
+                            <td>
+                                @if (follow.Status == "Completed")
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span>
+                                }
+                                else if (isOverdue)
+                                {
+                                    <span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>Overdue</span>
+                                }
+                                else if (follow.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">Planned</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    @if (follow.Status == "Planned")
+                                    {
+                                        <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#completeModal-@follow.FollowUpId" title="Complete"><i class="bi bi-check-lg"></i> Complete</button>
+                                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#rescheduleModal-@follow.FollowUpId" title="Reschedule"><i class="bi bi-calendar-event"></i></button>
+                                        <form asp-action="Cancel" asp-route-id="@follow.FollowUpId" method="post" class="d-inline" onsubmit="return confirm('Cancel this follow-up?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-secondary" title="Cancel"><i class="bi bi-x-circle"></i></button>
+                                        </form>
+                                    }
+                                </div>
+
+                                <!-- Complete Modal -->
+                                <div class="modal fade text-start" id="completeModal-@follow.FollowUpId" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="Complete" asp-route-id="@follow.FollowUpId" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-header bg-success text-white">
+                                                    <h5 class="modal-title fw-bold"><i class="bi bi-check-circle me-2"></i>Complete Follow-Up</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="small text-muted mb-2">Subject: <strong>@follow.Subject</strong></p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold small text-secondary">Completion Notes & Outcome Remarks:</label>
+                                                        <textarea name="completionRemarks" class="form-control" rows="3" placeholder="Summary of discussion, agreement, or outcome..." required></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-check-lg me-1"></i> Mark Completed</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reschedule Modal -->
+                                <div class="modal fade text-start" id="rescheduleModal-@follow.FollowUpId" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="Reschedule" asp-route-id="@follow.FollowUpId" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-header bg-warning text-dark">
+                                                    <h5 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2"></i>Reschedule Follow-Up</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="small text-muted mb-2">Subject: <strong>@follow.Subject</strong></p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold small text-secondary">New Scheduled Date & Time:</label>
+                                                        <input type="datetime-local" name="newFollowUpDate" class="form-control" value="@DateTime.UtcNow.AddDays(2).ToString("yyyy-MM-ddTHH:mm")" required />
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold small text-secondary">Reason for Rescheduling:</label>
+                                                        <textarea name="rescheduleReason" class="form-control" rows="2" placeholder="Client requested date change..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-warning fw-bold"><i class="bi bi-calendar-check me-1"></i> Reschedule Task</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-clock-history display-4 d-block mb-2 text-secondary"></i>
+                            <h5>No Follow-Ups Found</h5>
+                            <p class="small">No follow-ups match this category or scope.</p>
+                            <a asp-action="Create" class="btn btn-sm btn-danger fw-bold"><i class="bi bi-calendar-plus me-1"></i> Schedule Follow-Up</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.FollowUps.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Showing Page <strong>@Model.FollowUps.PageIndex</strong> of <strong>@Model.FollowUps.TotalPages</strong> (@Model.FollowUps.TotalCount Total Records)</span>
+            <ul class="pagination pagination-sm m-0">
+                <li class="page-item @(!Model.FollowUps.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.FollowUps.PageIndex - 1)" asp-route-activeTab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-assignedUserFilter="@Model.AssignedUserFilter">Previous</a>
+                </li>
+                @for (int i = 1; i <= Model.FollowUps.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.FollowUps.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-activeTab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-assignedUserFilter="@Model.AssignedUserFilter">@i</a>
+                    </li>
+                }
+                <li class="page-item @(!Model.FollowUps.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.FollowUps.PageIndex + 1)" asp-route-activeTab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-assignedUserFilter="@Model.AssignedUserFilter">Next</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

@@ -1,0 +1,31 @@
+## Visual Studio / .NET Build Artifacts
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Database & Local Storage Files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## Environment & Sensitive Local Settings
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+## Logs & Temp Test Artifacts
+logs/
+Log/
+Logs/
+TestResults/
+scratch/

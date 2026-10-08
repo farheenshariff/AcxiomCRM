@@ -1,0 +1,338 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Executive CRM Dashboard";
+}
+
+<!-- Page Header & Role Scope Banner -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-speedometer2 text-primary me-2"></i>Executive CRM Dashboard</h2>
+        <p class="text-muted small m-0 mt-1">Welcome back, <strong>@User.Identity?.Name</strong>!</p>
+    </div>
+    <div class="mt-2 mt-md-0">
+        <span class="badge bg-primary fs-6 px-3 py-2 shadow-sm"><i class="bi bi-shield-check me-1"></i> @Model.ScopeBannerText</span>
+    </div>
+</div>
+
+<!-- 8 Dashboard Metrics Cards -->
+<div class="row g-3 mb-4">
+    <!-- 1. Customers -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-primary-subtle text-primary p-3 rounded-3 me-3">
+                    <i class="bi bi-people-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Total Customers</div>
+                    <div class="h3 fw-bold text-dark mb-0">@Model.TotalCustomers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Total Leads -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-warning-subtle text-warning p-3 rounded-3 me-3">
+                    <i class="bi bi-person-badge-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Total Leads</div>
+                    <div class="h3 fw-bold text-dark mb-0">@Model.TotalLeads</div>
+                    <span class="badge bg-warning-subtle text-dark small mt-1">@Model.OpenLeads Open</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Open Opportunities -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-info-subtle text-info p-3 rounded-3 me-3">
+                    <i class="bi bi-graph-up-arrow fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Open Deals</div>
+                    <div class="h3 fw-bold text-dark mb-0">@Model.OpenOpportunities</div>
+                    <span class="badge bg-light text-muted border small mt-1">Of @Model.TotalOpportunities Total</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Total Pipeline Value -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-success-subtle text-success p-3 rounded-3 me-3">
+                    <i class="bi bi-currency-dollar fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Pipeline Value</div>
+                    <div class="h4 fw-bold text-dark mb-0">$@Model.TotalPipelineValue.ToString("N0")</div>
+                    <span class="small text-muted" style="font-size: 0.7rem;">Wtd: $@Model.WeightedPipelineValue.ToString("N0")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Won Opportunities -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-success text-white p-3 rounded-3 me-3">
+                    <i class="bi bi-trophy-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Won Opportunities</div>
+                    <div class="h3 fw-bold text-success mb-0">@Model.WonOpportunities</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Lost Opportunities -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-secondary-subtle text-secondary p-3 rounded-3 me-3">
+                    <i class="bi bi-x-circle-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Lost Opportunities</div>
+                    <div class="h3 fw-bold text-secondary mb-0">@Model.LostOpportunities</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Pending Follow-ups -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-danger-subtle text-danger p-3 rounded-3 me-3">
+                    <i class="bi bi-clock-history fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Pending Tasks</div>
+                    <div class="h3 fw-bold text-dark mb-0">@Model.PendingFollowUps</div>
+                    @if (Model.OverdueFollowUps > 0)
+                    {
+                        <span class="badge bg-danger small mt-1">@Model.OverdueFollowUps Overdue</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Weighted Forecast -->
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="bg-primary text-white p-3 rounded-3 me-3">
+                    <i class="bi bi-pie-chart-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="text-uppercase text-muted fw-semibold small" style="font-size: 0.7rem;">Weighted Forecast</div>
+                    <div class="h4 fw-bold text-primary mb-0">$@Model.WeightedPipelineValue.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3 Responsive Chart.js Charts -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Opportunity Pipeline Stages (Bar) -->
+    <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-dark m-0"><i class="bi bi-bar-chart-line text-primary me-2"></i>Opportunity Pipeline</h5>
+                <span class="badge bg-light text-muted border">Stage Distribution</span>
+            </div>
+            <div class="card-body">
+                <canvas id="pipelineChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Lead Status Breakdown (Doughnut) -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold text-dark m-0"><i class="bi bi-pie-chart text-warning me-2"></i>Lead Statuses</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="leadStatusChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Monthly Sales Outcomes (Line) -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold text-dark m-0"><i class="bi bi-graph-up text-success me-2"></i>Monthly Won Revenue</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlySalesChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables & Widgets Row -->
+<div class="row g-4">
+    <!-- Recent Opportunities Widget -->
+    <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-3 bg-white">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-dark m-0"><i class="bi bi-briefcase text-success me-2"></i>Recent Opportunities</h5>
+                <a asp-controller="Opportunity" asp-action="Index" class="btn btn-sm btn-link text-decoration-none fw-bold">View All &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light text-uppercase">
+                        <tr>
+                            <th>Opportunity Name</th>
+                            <th>Amount</th>
+                            <th>Stage</th>
+                            <th>Probability</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentOpportunities.Any())
+                        {
+                            @foreach (var opp in Model.RecentOpportunities)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@opp.OpportunityName</td>
+                                    <td class="fw-bold text-success">$@opp.Amount.ToString("N0")</td>
+                                    <td><span class="badge bg-secondary">@opp.Stage</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 5px;">
+                                                <div class="progress-bar bg-primary" style="width: @(opp.Probability)%"></div>
+                                            </div>
+                                            <span>@(opp.Probability)%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info text-dark">@opp.Status</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">No recent opportunities recorded.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Follow-ups Widget -->
+    <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 bg-white mb-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-dark m-0"><i class="bi bi-calendar-event text-danger me-2"></i>Upcoming Follow-Ups</h5>
+                <a asp-controller="FollowUp" asp-action="Index" class="btn btn-sm btn-link text-decoration-none fw-bold">View All &rarr;</a>
+            </div>
+            <ul class="list-group list-group-flush small">
+                @if (Model.UpcomingFollowUps.Any())
+                {
+                    @foreach (var follow in Model.UpcomingFollowUps)
+                    {
+                        <li class="list-group-item py-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">@follow.Subject</h6>
+                                    <p class="text-muted small mb-0"><i class="bi bi-person me-1"></i>@(follow.Customer?.CustomerName ?? follow.Lead?.LeadName ?? "General")</p>
+                                </div>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>@follow.FollowUpDate.ToString("MMM dd, HH:mm")</span>
+                            </div>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item py-3 text-muted text-center">No upcoming follow-ups scheduled.</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Chart 1: Opportunity Pipeline (Bar Chart)
+            const oppData = @Json.Serialize(Model.OpportunityStageChartData);
+            new Chart(document.getElementById('pipelineChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(oppData),
+                    datasets: [{
+                        label: 'Opportunities',
+                        data: Object.values(oppData),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // Chart 2: Lead Status (Doughnut Chart)
+            const leadData = @Json.Serialize(Model.LeadStatusChartData);
+            new Chart(document.getElementById('leadStatusChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(leadData),
+                    datasets: [{
+                        data: Object.values(leadData),
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#6b7280', '#059669', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Chart 3: Monthly Sales Outcomes (Line Chart)
+            const salesData = @Json.Serialize(Model.MonthlySalesChartData);
+            new Chart(document.getElementById('monthlySalesChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(salesData),
+                    datasets: [{
+                        label: 'Won Deal Revenue ($)',
+                        data: Object.values(salesData),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        });
+    </script>
+}

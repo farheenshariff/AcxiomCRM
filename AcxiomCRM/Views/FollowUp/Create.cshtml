@@ -1,0 +1,90 @@
+@model FollowUpCreateViewModel
+@{
+    ViewData["Title"] = "Schedule Follow-Up";
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-calendar-plus text-danger me-2"></i>Schedule New Follow-Up</h2>
+        <p class="text-muted small m-0 mt-1">Set up a scheduled call, meeting, or email task for a customer or lead.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary fw-bold"><i class="bi bi-arrow-left me-1"></i> Back to List</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-4"></div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Subject" class="form-label fw-semibold small text-secondary"></label>
+                        <input asp-for="Subject" class="form-control" placeholder="Contract Review & Pricing Discussion" autofocus />
+                        <span asp-validation-for="Subject" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label fw-semibold small text-secondary"></label>
+                        <select asp-for="CustomerId" class="form-select" asp-items="Model.CustomersList">
+                            <option value="">-- Select Customer Account --</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LeadId" class="form-label fw-semibold small text-secondary"></label>
+                        <select asp-for="LeadId" class="form-select" asp-items="Model.LeadsList">
+                            <option value="">-- Select Prospect Lead --</option>
+                        </select>
+                        <span asp-validation-for="LeadId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="FollowUpDate" class="form-label fw-semibold small text-secondary"></label>
+                        <input asp-for="FollowUpDate" type="datetime-local" class="form-control" value="@Model.FollowUpDate.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="FollowUpDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="FollowUpType" class="form-label fw-semibold small text-secondary"></label>
+                        <select asp-for="FollowUpType" class="form-select">
+                            <option value="Call">Call</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Email">Email</option>
+                            <option value="Review">Review</option>
+                        </select>
+                        <span asp-validation-for="FollowUpType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="AssignedTo" class="form-label fw-semibold small text-secondary"></label>
+                        <select asp-for="AssignedTo" class="form-select" asp-items="Model.UsersList">
+                            <option value="">-- Unassigned --</option>
+                        </select>
+                        <span asp-validation-for="AssignedTo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Remarks" class="form-label fw-semibold small text-secondary"></label>
+                        <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="Enter meeting agenda, phone call goal, or context..."></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-light border fw-semibold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-danger fw-bold px-4"><i class="bi bi-calendar-check me-1"></i> Schedule Follow-Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

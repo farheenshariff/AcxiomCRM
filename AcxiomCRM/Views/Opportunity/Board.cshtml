@@ -1,0 +1,145 @@
+@model PipelineBoardViewModel
+@{
+    ViewData["Title"] = "Sales Pipeline Board";
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-kanban text-success me-2"></i>Sales Pipeline Kanban Board</h2>
+        <p class="text-muted small m-0 mt-1">Interactive stage tracking for Qualification, Proposal, Negotiation, Won, and Lost deals.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold"><i class="bi bi-list-task me-1"></i> List View</a>
+        <a asp-action="Create" class="btn btn-success fw-bold shadow-sm"><i class="bi bi-plus-lg me-1"></i> Add Opportunity</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Qualification Column -->
+    <div class="col-12 col-md-4 col-xl">
+        <div class="card border-0 bg-light shadow-sm h-100">
+            <div class="card-header bg-primary text-white font-monospace fw-bold d-flex justify-content-between align-items-center py-2">
+                <span><i class="bi bi-funnel me-1"></i> Qualification</span>
+                <span class="badge bg-white text-primary">@Model.QualificationStage.Count</span>
+            </div>
+            <div class="card-body p-2 gap-2 d-flex flex-column" style="min-height: 450px;">
+                @foreach (var opp in Model.QualificationStage)
+                {
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="fw-bold text-dark mb-1">@opp.OpportunityName</div>
+                        <div class="text-success fw-bold h5 mb-2">$@opp.Amount.ToString("N0")</div>
+                        <div class="small text-muted mb-2"><i class="bi bi-building me-1"></i>@(opp.Customer?.CustomerName ?? opp.Lead?.LeadName ?? "Unlinked")</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary-subtle text-primary">Prob: @opp.Probability%</span>
+                            <form asp-action="UpdateStage" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@opp.OpportunityId" />
+                                <input type="hidden" name="newStage" value="Proposal" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary py-0 px-2" title="Advance to Proposal">Advance &rarr;</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Proposal Column -->
+    <div class="col-12 col-md-4 col-xl">
+        <div class="card border-0 bg-light shadow-sm h-100">
+            <div class="card-header bg-info text-dark font-monospace fw-bold d-flex justify-content-between align-items-center py-2">
+                <span><i class="bi bi-file-earmark-text me-1"></i> Proposal</span>
+                <span class="badge bg-dark text-white">@Model.ProposalStage.Count</span>
+            </div>
+            <div class="card-body p-2 gap-2 d-flex flex-column" style="min-height: 450px;">
+                @foreach (var opp in Model.ProposalStage)
+                {
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="fw-bold text-dark mb-1">@opp.OpportunityName</div>
+                        <div class="text-success fw-bold h5 mb-2">$@opp.Amount.ToString("N0")</div>
+                        <div class="small text-muted mb-2"><i class="bi bi-building me-1"></i>@(opp.Customer?.CustomerName ?? opp.Lead?.LeadName ?? "Unlinked")</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-info-subtle text-info">Prob: @opp.Probability%</span>
+                            <form asp-action="UpdateStage" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@opp.OpportunityId" />
+                                <input type="hidden" name="newStage" value="Negotiation" />
+                                <button type="submit" class="btn btn-sm btn-outline-info py-0 px-2" title="Advance to Negotiation">Advance &rarr;</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Negotiation Column -->
+    <div class="col-12 col-md-4 col-xl">
+        <div class="card border-0 bg-light shadow-sm h-100">
+            <div class="card-header bg-warning text-dark font-monospace fw-bold d-flex justify-content-between align-items-center py-2">
+                <span><i class="bi bi-chat-left-quote me-1"></i> Negotiation</span>
+                <span class="badge bg-dark text-white">@Model.NegotiationStage.Count</span>
+            </div>
+            <div class="card-body p-2 gap-2 d-flex flex-column" style="min-height: 450px;">
+                @foreach (var opp in Model.NegotiationStage)
+                {
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="fw-bold text-dark mb-1">@opp.OpportunityName</div>
+                        <div class="text-success fw-bold h5 mb-2">$@opp.Amount.ToString("N0")</div>
+                        <div class="small text-muted mb-2"><i class="bi bi-building me-1"></i>@(opp.Customer?.CustomerName ?? opp.Lead?.LeadName ?? "Unlinked")</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-warning-subtle text-warning">Prob: @opp.Probability%</span>
+                            <form asp-action="UpdateStage" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@opp.OpportunityId" />
+                                <input type="hidden" name="newStage" value="Won" />
+                                <button type="submit" class="btn btn-sm btn-success py-0 px-2" title="Close as Won">Win Deal &check;</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Won Column -->
+    <div class="col-12 col-md-4 col-xl">
+        <div class="card border-0 bg-light shadow-sm h-100">
+            <div class="card-header bg-success text-white font-monospace fw-bold d-flex justify-content-between align-items-center py-2">
+                <span><i class="bi bi-trophy me-1"></i> Closed Won</span>
+                <span class="badge bg-white text-success">@Model.WonStage.Count</span>
+            </div>
+            <div class="card-body p-2 gap-2 d-flex flex-column" style="min-height: 450px;">
+                @foreach (var opp in Model.WonStage)
+                {
+                    <div class="card border-0 shadow-sm p-3 bg-white border-start border-success border-4">
+                        <div class="fw-bold text-dark mb-1">@opp.OpportunityName</div>
+                        <div class="text-success fw-bold h5 mb-2">$@opp.Amount.ToString("N0")</div>
+                        <div class="small text-muted mb-1"><i class="bi bi-building me-1"></i>@(opp.Customer?.CustomerName ?? opp.Lead?.LeadName)</div>
+                        <span class="badge bg-success small w-100 py-1">100% Closed Deal</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Lost Column -->
+    <div class="col-12 col-md-4 col-xl">
+        <div class="card border-0 bg-light shadow-sm h-100">
+            <div class="card-header bg-secondary text-white font-monospace fw-bold d-flex justify-content-between align-items-center py-2">
+                <span><i class="bi bi-x-circle me-1"></i> Closed Lost</span>
+                <span class="badge bg-white text-secondary">@Model.LostStage.Count</span>
+            </div>
+            <div class="card-body p-2 gap-2 d-flex flex-column" style="min-height: 450px;">
+                @foreach (var opp in Model.LostStage)
+                {
+                    <div class="card border-0 shadow-sm p-3 bg-white opacity-75">
+                        <div class="fw-bold text-dark mb-1">@opp.OpportunityName</div>
+                        <div class="text-muted fw-bold h5 mb-2">$@opp.Amount.ToString("N0")</div>
+                        <span class="badge bg-secondary small w-100 py-1">Closed Lost</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

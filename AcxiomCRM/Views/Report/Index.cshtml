@@ -1,0 +1,226 @@
+@model AcxiomCRM.ViewModels.ReportDashboardViewModel
+@{
+    ViewData["Title"] = "Reports & Analytics Hub";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Reports & Analytics</h2>
+        <p class="text-muted mb-0">Executive dashboards, pipeline analytics, conversion metrics, and exports</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-success dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download me-1"></i> Export Report CSV
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="@Url.Action("ExportCsv", "Report", new { reportType = "pipeline", fromDate = Model.Filter.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.Filter.ToDate?.ToString("yyyy-MM-dd") })"><i class="bi bi-file-earmark-spreadsheet me-2 text-primary"></i>Pipeline CSV</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("ExportCsv", "Report", new { reportType = "customer", fromDate = Model.Filter.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.Filter.ToDate?.ToString("yyyy-MM-dd") })"><i class="bi bi-file-earmark-spreadsheet me-2 text-info"></i>Customers CSV</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("ExportCsv", "Report", new { reportType = "conversion", fromDate = Model.Filter.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.Filter.ToDate?.ToString("yyyy-MM-dd") })"><i class="bi bi-file-earmark-spreadsheet me-2 text-success"></i>Leads & Conversion CSV</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("ExportCsv", "Report", new { reportType = "followup", fromDate = Model.Filter.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.Filter.ToDate?.ToString("yyyy-MM-dd") })"><i class="bi bi-file-earmark-spreadsheet me-2 text-warning"></i>Follow-ups CSV</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-light rounded">
+        <form method="get" action="@Url.Action("Index", "Report")" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">From Date</label>
+                <input type="date" class="form-control" name="FromDate" value="@(Model.Filter.FromDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">To Date</label>
+                <input type="date" class="form-control" name="ToDate" value="@(Model.Filter.ToDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small text-muted">Search Keyword</label>
+                <input type="text" class="form-control" name="Search" value="@Model.Filter.Search" placeholder="Search by name, company..." />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Filter</button>
+                <a href="@Url.Action("Index", "Report")" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quick Navigation Tabs -->
+<ul class="nav nav-pills nav-fill mb-4 shadow-sm bg-white p-2 rounded border">
+    <li class="nav-item">
+        <a class="nav-link active fw-semibold" href="@Url.Action("Index", "Report")"><i class="bi bi-speedometer2 me-1"></i> Executive Hub</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" href="@Url.Action("Pipeline", "Report")"><i class="bi bi-funnel me-1"></i> Pipeline Analytics</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" href="@Url.Action("Conversion", "Report")"><i class="bi bi-graph-up me-1"></i> Lead Conversion</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" href="@Url.Action("CustomerSummary", "Report")"><i class="bi bi-people me-1"></i> Customer Summary</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" href="@Url.Action("FollowUpSummary", "Report")"><i class="bi bi-calendar-check me-1"></i> Follow-up Metrics</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" href="@Url.Action("UserActivity", "Report")"><i class="bi bi-person-lines-fill me-1"></i> User Activity</a>
+    </li>
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link fw-semibold text-danger" href="@Url.Action("Audit", "Report")"><i class="bi bi-shield-lock me-1"></i> Audit Summary</a>
+        </li>
+    }
+</ul>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm border-start border-primary border-4 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Pipeline Value</div>
+                        <div class="h3 fw-bold mb-0 text-primary">$@Model.Pipeline.TotalPipelineValue.ToString("N0")</div>
+                        <div class="small text-muted mt-1">Weighted: $@Model.Pipeline.WeightedPipelineValue.ToString("N0")</div>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                        <i class="bi bi-currency-dollar fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm border-start border-success border-4 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Lead Conversion Rate</div>
+                        <div class="h3 fw-bold mb-0 text-success">@Model.LeadConversion.ConversionRate%</div>
+                        <div class="small text-muted mt-1">@Model.LeadConversion.ConvertedLeads / @Model.LeadConversion.TotalLeads leads converted</div>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                        <i class="bi bi-graph-up-arrow fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm border-start border-info border-4 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Active Customers</div>
+                        <div class="h3 fw-bold mb-0 text-info">@Model.CustomerSummary.ActiveCustomers</div>
+                        <div class="small text-muted mt-1">Total: @Model.CustomerSummary.TotalCustomers customers</div>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
+                        <i class="bi bi-building fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm border-start border-warning border-4 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Pending Follow-ups</div>
+                        <div class="h3 fw-bold mb-0 text-warning">@Model.FollowUpSummary.PendingCount</div>
+                        <div class="small text-danger mt-1">@Model.FollowUpSummary.OverdueCount overdue</div>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
+                        <i class="bi bi-clock-history fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Visual Summaries -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-funnel text-primary me-2"></i>Sales Pipeline by Stage</h5>
+                <a href="@Url.Action("Pipeline", "Report")" class="btn btn-sm btn-outline-primary">Full Details</a>
+            </div>
+            <div class="card-body">
+                @if (Model.Pipeline.Stages.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Stage</th>
+                                    <th class="text-center">Deals</th>
+                                    <th class="text-end">Total Value</th>
+                                    <th class="text-end">Weighted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stage in Model.Pipeline.Stages)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@stage.Stage</span></td>
+                                        <td class="text-center fw-bold">@stage.Count</td>
+                                        <td class="text-end fw-semibold">$@stage.TotalValue.ToString("N0")</td>
+                                        <td class="text-end text-success">$@stage.WeightedValue.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">No pipeline data recorded for the selected criteria.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-geo-alt text-info me-2"></i>Customers by Top Cities</h5>
+                <a href="@Url.Action("CustomerSummary", "Report")" class="btn btn-sm btn-outline-info">Full Details</a>
+            </div>
+            <div class="card-body">
+                @if (Model.CustomerSummary.ByCity.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>City</th>
+                                    <th class="text-end">Customer Count</th>
+                                    <th class="text-end">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var city in Model.CustomerSummary.ByCity)
+                                {
+                                    var pct = Model.CustomerSummary.TotalCustomers > 0 ? (city.Count * 100.0 / Model.CustomerSummary.TotalCustomers).ToString("F1") : "0";
+                                    <tr>
+                                        <td class="fw-semibold">@city.City</td>
+                                        <td class="text-end fw-bold">@city.Count</td>
+                                        <td class="text-end text-muted">@pct%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">No customer city breakdown available.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,153 @@
+@model PaginatedList<AuditLog>
+@{
+    ViewData["Title"] = "Audit & Security Logs";
+}
+
+<div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="fw-bold text-dark m-0"><i class="bi bi-shield-check text-danger me-2"></i>Audit & Security Logs</h2>
+        <p class="text-muted small m-0 mt-1">Real-time system security audit trail, user logins, role modifications, and entity actions.</p>
+    </div>
+    <div>
+        <span class="badge bg-danger fs-6"><i class="bi bi-lock-fill me-1"></i> Admin & Manager Restricted</span>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body bg-light rounded">
+        <form method="get" action="@Url.Action("Index", "AuditLog")" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted">From Date</label>
+                <input type="date" class="form-control form-control-sm" name="fromDate" value="@ViewBag.FromDate" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted">To Date</label>
+                <input type="date" class="form-control form-control-sm" name="toDate" value="@ViewBag.ToDate" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted">Module / Entity</label>
+                <select name="entityName" class="form-select form-select-sm">
+                    <option value="">All Modules</option>
+                    <option value="Customer" selected="@(ViewBag.EntityName == "Customer")">Customer</option>
+                    <option value="Lead" selected="@(ViewBag.EntityName == "Lead")">Lead</option>
+                    <option value="Opportunity" selected="@(ViewBag.EntityName == "Opportunity")">Opportunity</option>
+                    <option value="FollowUp" selected="@(ViewBag.EntityName == "FollowUp")">FollowUp</option>
+                    <option value="User" selected="@(ViewBag.EntityName == "User")">User</option>
+                    <option value="Auth" selected="@(ViewBag.EntityName == "Auth")">Auth</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted">Result</label>
+                <select name="result" class="form-select form-select-sm">
+                    <option value="">All Results</option>
+                    <option value="Success" selected="@(ViewBag.Result == "Success")">Success</option>
+                    <option value="Failure" selected="@(ViewBag.Result == "Failure")">Failure</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">Search Keyword</label>
+                <input type="text" class="form-control form-control-sm" name="search" value="@ViewBag.Search" placeholder="Search action, details, IP..." />
+            </div>
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-search"></i></button>
+                <a href="@Url.Action("Index", "AuditLog")" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold text-dark m-0"><i class="bi bi-journal-text me-2"></i>Audit Log Events (@(Model?.TotalCount ?? 0))</h5>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload();"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark small text-uppercase">
+                <tr>
+                    <th>Log ID</th>
+                    <th>Timestamp (UTC)</th>
+                    <th>Action</th>
+                    <th>User ID / Account</th>
+                    <th>Module</th>
+                    <th>IP Address</th>
+                    <th>Result</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var log in Model)
+                    {
+                        var actionText = log.Action ?? "";
+                        <tr>
+                            <td class="fw-bold">#@log.AuditLogId</td>
+                            <td class="small text-muted">@log.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>
+                                @if (actionText.Contains("Login Success") || actionText.Contains("User Login") || actionText.Contains("ApiLogin"))
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-box-arrow-in-right me-1"></i>@actionText</span>
+                                }
+                                else if (actionText.Contains("Failure") || actionText.Contains("Lockout"))
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger"><i class="bi bi-exclamation-triangle me-1"></i>@actionText</span>
+                                }
+                                else if (actionText.Contains("Logout"))
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary"><i class="bi bi-box-arrow-right me-1"></i>@actionText</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info">@actionText</span>
+                                }
+                            </td>
+                            <td class="small font-monospace">@(log.UserId ?? "System")</td>
+                            <td class="small fw-semibold">@(log.EntityName ?? "-")</td>
+                            <td class="small font-monospace">@(log.IpAddress ?? "127.0.0.1")</td>
+                            <td>
+                                @if (log.Result == "Success")
+                                {
+                                    <span class="badge bg-success">Success</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">@log.Result</span>
+                                }
+                            </td>
+                            <td class="small text-secondary" style="max-width: 300px;">@log.Details</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No audit logs matching search criteria.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model != null && Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white border-0 py-3">
+            <nav aria-label="Audit log pagination">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", "AuditLog", new { page = Model.PageIndex - 1, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, entityName = ViewBag.EntityName, result = ViewBag.Result, search = ViewBag.Search })">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", "AuditLog", new { page = i, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, entityName = ViewBag.EntityName, result = ViewBag.Result, search = ViewBag.Search })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", "AuditLog", new { page = Model.PageIndex + 1, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, entityName = ViewBag.EntityName, result = ViewBag.Result, search = ViewBag.Search })">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
